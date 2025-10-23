@@ -1,19 +1,28 @@
 import React from 'react';
-import Button from '../components/Button'; 
+import { useNavigate } from 'react-router-dom';
+import Button from '../components/Button';
 
 const dummyLobbyData = {
   lobbyCode: 'XYZ123',
   players: [
-    { id: 1, name: 'Player1_Nica' },
-    { id: 2, name: 'Player2_JM' },
+    { id: 1, name: 'Player1_Veronica' },
+    { id: 2, name: 'Player2_Jean' },
     { id: 3, name: 'Player3_Nadine' },
   ],
-  isHost: true, 
+  isHost: true,
 };
 
 const Lobby = () => {
+  const navigate = useNavigate();
   const { lobbyCode, players, isHost } = dummyLobbyData;
-  const canStartGame = players.length >= 2; 
+  const canStartGame = players.length >= 2;
+
+  const handleStartGame = () => {
+    if (canStartGame) {
+      console.log('Starting game...');
+      navigate('/game');
+    }
+  };
 
   return (
     <div style={styles.container}>
@@ -37,7 +46,7 @@ const Lobby = () => {
         </div>
 
         {isHost && (
-          <Button disabled={!canStartGame}>
+          <Button onClick={handleStartGame} disabled={!canStartGame}>
             {canStartGame ? 'Start Game' : 'Waiting for more players...'}
           </Button>
         )}

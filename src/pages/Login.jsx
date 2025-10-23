@@ -1,12 +1,37 @@
 import React, { useState } from 'react';
-import Input from '../components/Input'; 
-import Button from '../components/Button'; 
+import { useNavigate } from 'react-router-dom';
+import Input from '../components/Input';
+import Button from '../components/Button';
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    password: '',
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    if (isLogin) {
+      console.log('Logging in with:', formData.email, formData.password);
+    } else {
+      console.log('Registering with:', formData.username, formData.email, formData.password);
+    }
+    
+    navigate('/lobby');
+  };
 
   const toggleForm = () => {
-    setIsLogin(!isLogin); 
+    setIsLogin(!isLogin);
   };
 
   return (
@@ -14,13 +39,33 @@ const Login = () => {
       <div style={styles.formContainer}>
         <h2>{isLogin ? 'Player Log-In' : 'Player Registration'}</h2>
 
-        <form>
+        <form onSubmit={handleSubmit}>
           {!isLogin && (
-            <Input type="text" placeholder="Username" required />
+            <Input
+              type="text"
+              name="username"
+              placeholder="Username"
+              value={formData.username}
+              onChange={handleInputChange}
+              required
+            />
           )}
-          <Input type="email" placeholder="Email" required />
-          <Input type="password" placeholder="Password" required />
-
+          <Input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={formData.email}
+            onChange={handleInputChange}
+            required
+          />
+          <Input
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={handleInputChange}
+            required
+          />
           <Button type="submit">
             {isLogin ? 'Log In' : 'Register'}
           </Button>
@@ -42,7 +87,7 @@ const styles = {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    height: '80vh', 
+    height: '80vh',
   },
   formContainer: {
     width: '300px',
