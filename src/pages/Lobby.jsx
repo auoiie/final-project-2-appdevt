@@ -1,51 +1,60 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { socket } from '../socket';
 import Button from '../components/Button';
 import Input from '../components/Input';
 import GameLogo from '../assets/images/logo.png';
 
-const createDummyLobbyData = (isHost = true) => ({
-  lobbyCode: 'XYZ123',
-  players: [
-    { id: 1, name: 'Player1_Veronica', ready: isHost },
-    { id: 2, name: 'Player2_Jean', ready: false },
-  ],
-  isHost: isHost,
-  currentUser: { id: isHost ? 1 : 2 },
-});
-
 const Lobby = () => {
   const navigate = useNavigate();
+  const [username, setUsername] = useState('');
   const [lobbyData, setLobbyData] = useState(null);
   const [joinCode, setJoinCode] = useState('');
-  const [username, setUsername] = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const storedUsername = localStorage.getItem('username');
     if (storedUsername) {
       setUsername(storedUsername);
     }
+
+    socket.connect();
+
+    function onLobbyState(state) {
+      setLobbyData(state);
+      setError('');
+    }
+
+    function onLobbyError(message) {
+      setError(message);
+    }
+
+    socket.on('lobby_state', onLobbyState);
+    socket.on('lobby_error', onLobbyError);
+
+    return () => {
+      socket.off('lobby_state', onLobbyState);
+      socket.off('lobby_error', onLobbyError);
+      socket.disconnect();
+    };
   }, []);
 
   const handleCreateLobby = () => {
-    setLobbyData(createDummyLobbyData(true));
+    socket.emit('create_lobby', username);
   };
 
   const handleJoinLobby = (e) => {
     e.preventDefault();
-    setLobbyData(createDummyLobbyData(false));
+    setError('');
+    if (joinCode) {
+      socket.emit('join_lobby', { lobbyCode: joinCode, username });
+    }
   };
 
   const handleReadyToggle = () => {
-    setLobbyData(currentLobby => {
-      const updatedPlayers = currentLobby.players.map(p => {
-        if (p.id === currentLobby.currentUser.id) {
-          return { ...p, ready: !p.ready };
-        }
-        return p;
-      });
-      return { ...currentLobby, players: updatedPlayers };
-    });
+    if (lobbyData && lobbyData.lobbyCode) {
+      socket.emit('toggle_ready', lobbyData.lobbyCode);
+    }
   };
 
   const handleStartGame = () => {
@@ -53,23 +62,24 @@ const Lobby = () => {
   };
 
   const renderInLobbyView = () => {
-    const { lobbyCode, players, isHost, currentUser } = lobbyData;
-    const canStartGame = players.length >= 2 && players.every(p => p.ready);
-    const currentPlayer = players.find(p => p.id === currentUser.id);
+    const isHost = socket.id === lobbyData.host;
+    const players = lobbyData.players || [];
+    const canStartGame = isHost && players.length >= 2 && players.every(p => p.ready);
+    const currentPlayer = players.find(p => p.id === socket.id);
 
     return (
       <div style={styles.lobbyContainer}>
         <h2 style={styles.title}>Game Lobby</h2>
         <div style={styles.lobbyInfo}>
           <p>Share this code with your friends:</p>
-          <h3 style={styles.lobbyCode}>{lobbyCode}</h3>
+          <h3 style={styles.lobbyCode}>{lobbyData.lobbyCode}</h3>
         </div>
         <div style={styles.playerList}>
           <h4>Players ({players.length}/4)</h4>
           <ul>
             {players.map(player => (
               <li key={player.id} style={styles.playerItem}>
-                {player.name}
+                {player.username}
                 <span style={{ color: player.ready ? '#28a745' : '#dc3545', marginLeft: '8px' }}>
                   {player.ready ? '(Ready)' : '(Not Ready)'}
                 </span>
@@ -82,8 +92,8 @@ const Lobby = () => {
             {canStartGame ? 'Start Game' : 'Waiting for players...'}
           </Button>
         ) : (
-          <Button onClick={handleReadyToggle} style={{ backgroundColor: currentPlayer.ready ? '#28a745' : '#790000ff' }}>
-            {currentPlayer.ready ? 'Unready' : 'Ready'}
+          <Button onClick={handleReadyToggle} style={{ backgroundColor: currentPlayer?.ready ? '#28a745' : '#790000ff' }}>
+            {currentPlayer?.ready ? 'Unready' : 'Ready'}
           </Button>
         )}
       </div>
@@ -103,6 +113,7 @@ const Lobby = () => {
       </div>
       <div style={styles.joinContainer}>
         <h2 style={styles.title}>Join with Code</h2>
+        {error && <p style={styles.errorText}>{error}</p>}
         <form onSubmit={handleJoinLobby} style={styles.joinForm}>
           <Input
             type="text"
@@ -174,6 +185,10 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
+  },
+  errorText: {
+    color: '#dc3545',
+    marginBottom: '10px',
   },
   orSeparator: {
     display: 'flex',
