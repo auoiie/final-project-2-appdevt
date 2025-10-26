@@ -6,11 +6,12 @@ const Input = (props) => {
       {...props}
       style={{
         width: '100%',
-        padding: '10px',
-        marginBottom: '10px',
+        padding: '15px',
+        marginBottom: '15px',
         borderRadius: '5px',
         border: '1px solid #ccc',
-        boxSizing: 'border-box'
+        boxSizing: 'border-box',
+        fontSize: '16px',
       }}
     />
   );

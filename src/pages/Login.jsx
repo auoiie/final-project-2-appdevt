@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Input from '../components/Input';
 import Button from '../components/Button';
+import GameLogo from '../assets/images/logo.png';
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -20,13 +21,8 @@ const Login = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    if (isLogin) {
-      console.log('Logging in with:', formData.email, formData.password);
-    } else {
-      console.log('Registering with:', formData.username, formData.email, formData.password);
-    }
-    
+    const userIdentifier = formData.username || formData.email.split('@')[0];
+    localStorage.setItem('username', userIdentifier);
     navigate('/lobby');
   };
 
@@ -37,7 +33,7 @@ const Login = () => {
   return (
     <div style={styles.container}>
       <div style={styles.formContainer}>
-        <h2>{isLogin ? 'Player Log-In' : 'Player Registration'}</h2>
+        <img src={GameLogo} alt="You're IT! Logo" style={styles.logo} />
 
         <form onSubmit={handleSubmit}>
           {!isLogin && (
@@ -87,21 +83,26 @@ const styles = {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    height: '80vh',
+    height: '100vh',
   },
   formContainer: {
-    width: '300px',
-    padding: '20px',
-    boxShadow: '0 0 10px rgba(0,0,0,0.1)',
+    width: '400px',
+    padding: '40px',
     borderRadius: '8px',
     textAlign: 'center',
+    backgroundColor: 'rgba(20, 20, 20, 0.8)',
+    border: '1px solid #555',
+  },
+  logo: {
+    width: '280px',
+    marginBottom: '30px',
   },
   toggleText: {
-    marginTop: '15px',
+    marginTop: '20px',
     fontSize: '14px',
   },
   toggleLink: {
-    color: '#007bff',
+    color: '#00aaff',
     cursor: 'pointer',
     fontWeight: 'bold',
   },

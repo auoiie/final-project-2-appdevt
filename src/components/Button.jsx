@@ -1,20 +1,21 @@
 import React from 'react';
 
-const Button = ({ children, ...props }) => {
+const Button = ({ children, style, ...props }) => {
+  const buttonStyle = {
+    width: '100%',
+    padding: '15px',
+    borderRadius: '5px',
+    border: 'none',
+    backgroundColor: 'darkorange',
+    color: 'white',
+    cursor: 'pointer',
+    fontSize: '18px',
+    fontWeight: 'bold',
+    ...style,
+  };
+
   return (
-    <button
-      {...props}
-      style={{
-        width: '100%',
-        padding: '10px',
-        borderRadius: '5px',
-        border: 'none',
-        backgroundColor: '#007bff',
-        color: 'white',
-        cursor: 'pointer',
-        fontSize: '16px'
-      }}
-    >
+    <button {...props} style={buttonStyle}>
       {children}
     </button>
   );
