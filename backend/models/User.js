@@ -15,6 +15,11 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  role: {
+    type: String,
+    enum: ['Player', 'Admin'],
+    default: 'Player'
+  },
   gamesPlayed: {
     type: Number,
     default: 0,
@@ -23,6 +28,6 @@ const UserSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-}, { timestamps: true }); 
+}, { timestamps: true });
 
 module.exports = mongoose.model('User', UserSchema);
