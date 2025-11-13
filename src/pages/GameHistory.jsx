@@ -14,7 +14,7 @@ const GameHistory = () => {
         const fetchGameHistory = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await axios.get('http://localhost:3001/api/games/my-history', {
+                const res = await axios.get('https://final-project-2-appdevt.onrender.com/api/games/my-history', {
                     headers: { 'auth-token': token }
                 });
                 setGames(res.data);

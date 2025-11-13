@@ -31,7 +31,7 @@ const Lobby = () => {
         const fetchLevels = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await axios.get('http://localhost:3001/api/levels', {
+                const res = await axios.get('https://final-project-2-appdevt.onrender.com/api/levels', {
                     headers: { 'auth-token': token },
                 });
                 setLevels(res.data);

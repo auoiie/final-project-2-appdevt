@@ -25,7 +25,7 @@ const ForgotPassword = () => {
         }
         
         try {
-            await axios.post('http://localhost:3001/api/auth/reset-password', {
+            await axios.post('https://final-project-2-appdevt.onrender.com/api/auth/reset-password', {
                 email: formData.email,
                 newPassword: formData.newPassword,
             });

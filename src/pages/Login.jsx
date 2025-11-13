@@ -27,7 +27,7 @@ const Login = () => {
 
         if (isLogin) {
             try {
-                const res = await axios.post('http://localhost:3001/api/auth/login', {
+                const res = await axios.post('https://final-project-2-appdevt.onrender.com/api/auth/login', {
                     email: formData.email,
                     password: formData.password,
                 });
@@ -48,7 +48,7 @@ const Login = () => {
             }
 
             try {
-                const res = await axios.post('http://localhost:3001/api/auth/register', {
+                const res = await axios.post('https://final-project-2-appdevt.onrender.com/api/auth/register', {
                     username: formData.username,
                     email: formData.email,
                     password: formData.password,

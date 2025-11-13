@@ -45,7 +45,7 @@ const LevelManagement = () => {
     const fetchLevels = async () => {
         const token = localStorage.getItem('token');
         try {
-            const res = await axios.get('http://localhost:3001/api/levels', { headers: { 'auth-token': token } });
+            const res = await axios.get('https://final-project-2-appdevt.onrender.com/api/levels', { headers: { 'auth-token': token } });
             setLevels(res.data);
         } catch (err) { setError('Could not fetch levels.'); }
     };
@@ -73,7 +73,7 @@ const LevelManagement = () => {
         setError('');
         const token = localStorage.getItem('token');
         try {
-            const res = await axios.get(`http://localhost:3001/api/levels/${levelId}`, { headers: { 'auth-token': token } });
+            const res = await axios.get(`https://final-project-2-appdevt.onrender.com/api/levels/${levelId}`, { headers: { 'auth-token': token } });
             const { name, platforms, spawnPoints } = res.data;
             setEditingLevelId(levelId);
             setLevelName(name);
@@ -107,10 +107,10 @@ const LevelManagement = () => {
 
         try {
             if (editingLevelId) {
-                await axios.put(`http://localhost:3001/api/levels/${editingLevelId}`, levelData, { headers: { 'auth-token': token } });
+                await axios.put(`https://final-project-2-appdevt.onrender.com/api/levels/${editingLevelId}`, levelData, { headers: { 'auth-token': token } });
                 setSuccess(`Level "${levelName}" updated successfully!`);
             } else {
-                await axios.post('http://localhost:3001/api/levels', levelData, { headers: { 'auth-token': token } });
+                await axios.post('https://final-project-2-appdevt.onrender.com/api/levels', levelData, { headers: { 'auth-token': token } });
                 setSuccess(`Level "${levelName}" created successfully!`);
             }
             resetEditor();
@@ -124,7 +124,7 @@ const LevelManagement = () => {
         if (!window.confirm('Are you sure you want to delete this level?')) return;
         const token = localStorage.getItem('token');
         try {
-            await axios.delete(`http://localhost:3001/api/levels/${levelId}`, { headers: { 'auth-token': token } });
+            await axios.delete(`https://final-project-2-appdevt.onrender.com/api/levels/${levelId}`, { headers: { 'auth-token': token } });
             setSuccess('Level deleted successfully!');
             if (editingLevelId === levelId) {
                 resetEditor();

@@ -12,7 +12,7 @@ const UserManagement = () => {
     const fetchUsers = async () => {
         const token = localStorage.getItem('token');
         try {
-            const res = await axios.get('http://localhost:3001/api/users', { headers: { 'auth-token': token } });
+            const res = await axios.get('https://final-project-2-appdevt.onrender.com/api/users', { headers: { 'auth-token': token } });
             setUsers(res.data);
         } catch (err) { setError('Could not fetch users.'); }
     };
@@ -27,7 +27,7 @@ const UserManagement = () => {
         setSuccess('');
         const token = localStorage.getItem('token');
         try {
-            await axios.delete(`http://localhost:3001/api/users/${userId}`, { headers: { 'auth-token': token } });
+            await axios.delete(`https://final-project-2-appdevt.onrender.com/api/users/${userId}`, { headers: { 'auth-token': token } });
             setSuccess('User deleted successfully!');
             fetchUsers();
         } catch (err) {

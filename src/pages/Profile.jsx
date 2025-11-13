@@ -20,7 +20,7 @@ const Profile = () => {
                     navigate('/login');
                     return;
                 }
-                const res = await axios.get('http://localhost:3001/api/users/me', {
+                const res = await axios.get('https://final-project-2-appdevt.onrender.com/api/users/me', {
                     headers: { 'auth-token': token }
                 });
                 setUserData(res.data);
@@ -44,7 +44,7 @@ const Profile = () => {
         }
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.put('http://localhost:3001/api/users/update-username', 
+            const res = await axios.put('https://final-project-2-appdevt.onrender.com/api/users/update-username', 
                 { newUsername },
                 { headers: { 'auth-token': token } }
             );
