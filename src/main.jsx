@@ -13,6 +13,8 @@ import ForgotPassword from './pages/ForgotPassword.jsx';
 import Profile from './pages/Profile.jsx';
 import GameHistory from './pages/GameHistory.jsx';
 import AdminDashboard from './pages/AdminDashboard.jsx';
+import LevelManagement from './pages/LevelManagement.jsx';
+import UserManagement from './pages/UserManagement.jsx';
 
 const router = createBrowserRouter([
     {
@@ -58,6 +60,14 @@ const router = createBrowserRouter([
                     {
                         path: "/admin",
                         element: <AdminDashboard />,
+                    },
+                    {
+                        path: "/admin/levels",
+                        element: <LevelManagement />,
+                    },
+                    {
+                        path: "/admin/users",
+                        element: <UserManagement />,
                     }
                 ]
             }

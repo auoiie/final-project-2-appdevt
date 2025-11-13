@@ -5,20 +5,12 @@ import GameLogo from '../assets/images/logo.png';
 import GameOver from '../components/GameOver.jsx';
 import Button from '../components/Button.jsx';
 import DisconnectedModal from '../components/DisconnectedModal.jsx';
+import ChatToggle from '../components/ChatToggle';
 
-const DisqualifiedOverlay = ({ onSpectate, onQuit, playerStats = [] }) => (
+const DisqualifiedOverlay = ({ onSpectate, onQuit }) => (
     <div style={styles.overlay}>
         <div style={styles.modal}>
             <h1 style={styles.modalTitle}>You've Been Disqualified!</h1>
-            <div style={styles.statsContainer}>
-                <h3>Current Stats</h3>
-                {playerStats.map(stat => (
-                    <div key={stat.username} style={styles.statLine}>
-                        <span>{stat.username}</span>
-                        <span>Wins: {stat.gamesWon} / Played: {stat.gamesPlayed}</span>
-                    </div>
-                ))}
-            </div>
             <div style={styles.modalButtonGroup}>
                 <Button onClick={onSpectate} style={{ flex: 1 }}>Spectate</Button>
                 <Button onClick={onQuit} style={{ flex: 1, backgroundColor: '#dc3545' }}>Quit to Lobby</Button>
@@ -40,6 +32,11 @@ const GameArena = () => {
     const keysPressed = useRef({});
 
     useEffect(() => {
+        if (!location.state?.initialGameState) {
+            navigate('/lobby');
+            return;
+        }
+
         if (!socket.connected) {
             socket.connect();
         }
@@ -55,18 +52,14 @@ const GameArena = () => {
         const onGameOver = (data) => setGameOverInfo(data);
         const onCountdown = (count) => setCountdown(count);
         const onLobbyClosed = (message) => setDisconnectMessage(message);
-        
-        const onLobbyState = (state) => {
-            navigate('/lobby', { state: { lobbyData: state } });
-        };
 
         socket.on('game_state_update', onGameStateUpdate);
         socket.on('game_over', onGameOver);
         socket.on('countdown', onCountdown);
         socket.on('lobby_closed', onLobbyClosed);
-        socket.on('lobby_state', onLobbyState);
 
         const handleKeyDown = (e) => {
+            if (e.target.tagName === 'INPUT') return;
             const key = e.key.toLowerCase();
             if (['a', 'd', 'w'].includes(key) && !keysPressed.current[key]) {
                 keysPressed.current[key] = true;
@@ -75,6 +68,7 @@ const GameArena = () => {
         };
 
         const handleKeyUp = (e) => {
+            if (e.target.tagName === 'INPUT') return;
             const key = e.key.toLowerCase();
             if (['a', 'd', 'w'].includes(key)) {
                 keysPressed.current[key] = false;
@@ -92,11 +86,10 @@ const GameArena = () => {
             socket.off('game_over', onGameOver);
             socket.off('countdown', onCountdown);
             socket.off('lobby_closed', onLobbyClosed);
-            socket.off('lobby_state', onLobbyState);
             window.removeEventListener('keydown', handleKeyDown);
             window.removeEventListener('keyup', handleKeyUp);
         };
-    }, [lobbyCode, isDisqualified, isSpectating, navigate]);
+    }, [lobbyCode, isDisqualified, isSpectating, navigate, location.state]);
     
     const handleQuitToLobby = () => {
         socket.emit('leave_game');
@@ -106,10 +99,6 @@ const GameArena = () => {
     const handleSpectate = () => {
         setIsDisqualified(false);
         setIsSpectating(true);
-    };
-
-    const handlePlayAgain = () => {
-        socket.emit('play_again', lobbyCode);
     };
     
     const convertStateToPercentages = (state) => {
@@ -132,13 +121,13 @@ const GameArena = () => {
 
     const displayState = convertStateToPercentages(gameState);
 
-    if (!displayState) return <div style={styles.loadingContainer}><h1 style={styles.loadingText}>Loading Game...</h1></div>;
+    if (!displayState) return <div style={styles.loadingContainer}><h1 style={styles.loadingText}>Loading...</h1></div>;
 
     return (
         <div style={styles.arenaContainer}>
             {disconnectMessage && <DisconnectedModal message={disconnectMessage} />}
-            {gameOverInfo && <GameOver winner={gameOverInfo.winner} rankedStats={gameOverInfo.rankedStats} onPlayAgain={handlePlayAgain} />}
-            {isDisqualified && <DisqualifiedOverlay onSpectate={handleSpectate} onQuit={handleQuitToLobby} playerStats={gameOverInfo?.rankedStats} />}
+            {gameOverInfo && <GameOver rankedStats={gameOverInfo.rankedStats} onBackToLobby={handleQuitToLobby} />}
+            {isDisqualified && <DisqualifiedOverlay onSpectate={handleSpectate} onQuit={handleQuitToLobby} />}
             
             {countdown > 0 && (
                 <div style={styles.countdownOverlay}><h1 style={styles.countdownText}>{countdown}</h1></div>
@@ -171,6 +160,7 @@ const GameArena = () => {
                     <div key={platform.id || platform._id} style={{ ...styles.platform, left: `${platform.x}%`, top: `${platform.y}%`, width: `${platform.width}%`, height: `${platform.height}%` }} />
                 ))}
             </div>
+            <ChatToggle lobbyCode={lobbyCode} username={localStorage.getItem('username')} />
         </div>
     );
 };
@@ -234,15 +224,8 @@ const styles = {
         padding: '30px 40px', borderRadius: '8px', backgroundColor: 'rgba(20, 20, 20, 0.9)',
         border: '1px solid #555', textAlign: 'center', color: 'white', width: '400px',
     },
-    modalTitle: { fontSize: '2.5em', marginBottom: '15px', color: 'darkorange' },
+    modalTitle: { fontSize: '2.5em', marginBottom: '25px', color: 'darkorange' },
     modalButtonGroup: { display: 'flex', gap: '15px', marginTop: '20px' },
-    statsContainer: {
-        borderTop: '1px solid #444', borderBottom: '1px solid #444',
-        padding: '15px 0', marginBottom: '15px',
-    },
-    statLine: {
-        display: 'flex', justifyContent: 'space-between', padding: '5px 10px',
-    }
 };
 
 export default GameArena;

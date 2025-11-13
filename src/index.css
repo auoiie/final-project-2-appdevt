@@ -3,3 +3,20 @@ body {
   margin: 0;
   font-family: sans-serif;
 }
+.chat-message-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chat-message-list::-webkit-scrollbar-track {
+  background: #2b2b2b;
+  border-radius: 4px;
+}
+
+.chat-message-list::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+}
+
+.chat-message-list::-webkit-scrollbar-thumb:hover {
+  background: #777;
+}

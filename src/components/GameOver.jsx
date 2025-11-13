@@ -1,9 +1,7 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import Button from './Button';
 
-const GameOver = ({ onPlayAgain, rankedStats = [] }) => {
-    const navigate = useNavigate();
+const GameOver = ({ onBackToLobby, rankedStats = [] }) => {
     const currentUser = localStorage.getItem('username');
 
     const getOrdinal = (n) => {
@@ -23,21 +21,23 @@ const GameOver = ({ onPlayAgain, rankedStats = [] }) => {
                         const isWinner = stat.rank === 1;
                         const isCurrentUser = stat.username === currentUser;
                         return (
-                            <div key={stat.username} style={styles.statLine}>
+                            <div key={stat.username} style={styles.statLine(isCurrentUser)}>
                                 <span style={styles.rank(isWinner)}>
-                                    {isWinner ? '🎉' : getOrdinal(stat.rank)}
+                                    {getOrdinal(stat.rank)}
                                 </span>
-                                <span style={styles.username(isWinner, isCurrentUser)}>
+                                <span style={styles.username(isWinner)}>
                                     {stat.username}
+                                </span>
+                                <span style={styles.emoji}>
+                                    {isWinner ? '🎉' : ''}
                                 </span>
                             </div>
                         );
                     })}
                 </div>
 
-                <div style={styles.buttonGroup}>
-                    <Button onClick={onPlayAgain}>Play Again</Button>
-                    <Button onClick={() => navigate('/lobby')} style={{ backgroundColor: '#6c757d' }}>
+                <div style={styles.buttonContainer}>
+                    <Button onClick={onBackToLobby}>
                         Back to Lobby
                     </Button>
                 </div>
@@ -56,9 +56,13 @@ const styles = {
         padding: '30px 40px', borderRadius: '8px', backgroundColor: 'rgba(20, 20, 20, 0.95)',
         border: '1px solid #555', textAlign: 'center', color: 'white', width: '400px',
     },
-    title: { fontSize: '3em', marginBottom: '25px', color: 'darkorange' },
+    title: { 
+        fontSize: '3em', 
+        marginBottom: '15px', 
+        color: 'darkorange' 
+    },
     statsContainer: {
-        padding: '15px 0', 
+        padding: '10px 0', 
         marginBottom: '25px',
     },
     statsTitle: {
@@ -69,26 +73,31 @@ const styles = {
         borderBottom: '1px solid #444',
         paddingBottom: '15px'
     },
-    statLine: {
+    statLine: (isCurrentUser) => ({
         display: 'grid',
-        gridTemplateColumns: '1fr 2fr',
+        gridTemplateColumns: '1fr 3fr 1fr',
         alignItems: 'center',
-        padding: '10px',
+        padding: '12px 10px',
         textAlign: 'left',
-    },
-    rank: (isWinner) => ({
-        fontWeight: 'bold',
-        color: isWinner ? 'darkorange' : '#aaa',
-        fontSize: isWinner ? '1.8em' : '1.2em',
-    }),
-    username: (isWinner, isCurrentUser) => ({
-        fontSize: isWinner ? '1.8em' : '1.2em',
         fontWeight: isCurrentUser ? 'bold' : 'normal',
         color: isCurrentUser ? 'white' : '#ccc',
     }),
-    buttonGroup: { 
-        display: 'flex', 
-        gap: '10px' 
+    rank: (isWinner) => ({
+        fontWeight: 'bold',
+        color: isWinner ? 'darkorange' : '#aaa',
+        fontSize: isWinner ? '1.5em' : '1.2em',
+    }),
+    username: (isWinner) => ({
+        fontSize: isWinner ? '1.5em' : '1.2em',
+        color: isWinner ? 'darkorange' : 'inherit',
+    }),
+    emoji: {
+        fontSize: '1.5em',
+        textAlign: 'right',
+    },
+    buttonContainer: { 
+        width: '100%',
+        margin: '0 auto',
     }
 };
 

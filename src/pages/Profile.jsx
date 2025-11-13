@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import Button from '../components/Button';
 import Input from '../components/Input';
 
@@ -16,17 +16,25 @@ const Profile = () => {
         const fetchUserData = async () => {
             try {
                 const token = localStorage.getItem('token');
+                if (!token) {
+                    navigate('/login');
+                    return;
+                }
                 const res = await axios.get('http://localhost:3001/api/users/me', {
                     headers: { 'auth-token': token }
                 });
                 setUserData(res.data);
                 setNewUsername(res.data.username);
             } catch (err) {
-                setError('Could not fetch user data.');
+                setError('Could not fetch user data. Your session may have expired.');
+                localStorage.removeItem('token');
+                localStorage.removeItem('username');
+                localStorage.removeItem('role');
+                navigate('/login');
             }
         };
         fetchUserData();
-    }, []);
+    }, [navigate]);
 
     const handleSaveUsername = async () => {
         if (newUsername === userData.username) {
@@ -47,6 +55,13 @@ const Profile = () => {
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to update username.');
         }
+    };
+    
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('username');
+        localStorage.removeItem('role');
+        navigate('/login');
     };
 
     if (error && !userData) return <div style={styles.container}><p style={styles.errorText}>{error}</p></div>;
@@ -106,6 +121,10 @@ const Profile = () => {
                         Back to Lobby
                     </Button>
                 </div>
+                
+                <Button onClick={handleLogout} style={{ marginTop: '10px', backgroundColor: '#dc3545' }}>
+                    Logout
+                </Button>
             </div>
         </div>
     );

@@ -91,6 +91,9 @@ const gameLoop = async (lobbyCode) => {
         const activePlayers = gameState.players.filter(p => !p.disqualified);
 
         if (activePlayers.length <= 1) {
+            if (lobby.gameOverHandled) return; 
+            lobby.gameOverHandled = true; 
+
             const winner = activePlayers[0];
             const allPlayerUsernames = lobby.gameState.players.map(p => p.username);
     
@@ -213,19 +216,34 @@ const gameLoop = async (lobbyCode) => {
     io.to(lobbyCode).emit('game_state_update', gameState);
 };
 
-const handleDisconnect = (socketId) => {
+const handleLeaveOrDisconnect = (socketId) => {
     const lobbyInfo = socketToLobby[socketId];
     if (lobbyInfo) {
         const { lobbyCode, username } = lobbyInfo;
         const lobby = lobbies[lobbyCode];
+
         if (lobby) {
             if (lobby.intervalId) {
                 clearInterval(lobby.intervalId);
             }
-            const message = `${username} has disconnected. Game ended.`;
-            io.to(lobbyCode).emit('lobby_closed', message);
-            delete lobbies[lobbyCode];
-            console.log(`Lobby ${lobbyCode} closed due to player disconnect.`);
+            if (lobby.gameActive || lobby.gameStarted) {
+                const message = `${username} has disconnected. The game has ended.`;
+                io.to(lobbyCode).emit('lobby_closed', message);
+                delete lobbies[lobbyCode];
+                console.log(`Lobby ${lobbyCode} closed due to player disconnect.`);
+            } else {
+                lobby.players = lobby.players.filter(p => p.id !== socketId);
+                if (lobby.players.length === 0) {
+                    delete lobbies[lobbyCode];
+                    console.log(`Lobby ${lobbyCode} closed because it is empty.`);
+                } else {
+                    if (lobby.host === socketId) {
+                        lobby.host = lobby.players[0].id;
+                        lobby.players[0].ready = true;
+                    }
+                    io.to(lobbyCode).emit('lobby_state', { lobbyCode, ...lobby });
+                }
+            }
         }
     }
     delete socketToLobby[socketId];
@@ -284,18 +302,6 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('play_again', (lobbyCode) => {
-        const lobby = lobbies[lobbyCode];
-        if (lobby) {
-            lobby.gameStarted = false;
-            lobby.gameState = null;
-            lobby.players.forEach(p => {
-                p.ready = (p.id === lobby.host);
-            });
-            io.to(lobbyCode).emit('lobby_state', { lobbyCode, ...lobby });
-        }
-    });
-
     socket.on('select_level', ({ lobbyCode, levelId, levelName }) => {
         const lobby = lobbies[lobbyCode];
         if (lobby && lobby.host === socket.id) {
@@ -330,6 +336,18 @@ io.on('connection', (socket) => {
             }
         }
     });
+    
+    socket.on('send_chat_message', ({ lobbyCode, message }) => {
+        const lobbyInfo = socketToLobby[socket.id];
+        if (lobbyInfo && lobbyInfo.lobbyCode === lobbyCode) {
+            const username = lobbyInfo.username;
+            io.to(lobbyCode).emit('receive_chat_message', {
+                username,
+                text: message,
+                id: `${socket.id}-${Date.now()}`
+            });
+        }
+    });
 
     socket.on('start_game', async (lobbyCode) => {
         const lobby = lobbies[lobbyCode];
@@ -356,6 +374,7 @@ io.on('connection', (socket) => {
 
                 lobby.gameStarted = true;
                 lobby.gameActive = false;
+                lobby.gameOverHandled = false;
                 
                 const randomIndex = Math.floor(Math.random() * lobby.players.length);
                 const itPlayerId = lobby.players[randomIndex].id;
@@ -403,11 +422,11 @@ io.on('connection', (socket) => {
     });
 
     socket.on('leave_game', () => {
-        handleDisconnect(socket.id);
+        handleLeaveOrDisconnect(socket.id);
     });
 
     socket.on('disconnect', () => {
-        handleDisconnect(socket.id);
+        handleLeaveOrDisconnect(socket.id);
     });
 });
 
