@@ -52,7 +52,7 @@ const connectDB = async () => {
 
 connectDB();
 
-app.use(cors()); // <-- THIS IS THE FIX. It allows all HTTP requests.
+app.use(cors({ origin: corsOrigin })); 
 app.use(express.json());
 
 app.use('/api/auth', authRoute);
