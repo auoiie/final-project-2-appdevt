@@ -139,10 +139,10 @@ const Lobby = () => {
             <div style={styles.lobbyContainer}>
                 <div style={styles.lobbyHeader}>
                      <div style={{...styles.headerIcon, visibility: showChat ? 'hidden' : 'visible' }} onClick={handleLeaveLobby} title="Leave Lobby">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style={styles.backArrowSvg}>
-                            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
-                        </svg>
-                    </div>
+                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style={styles.backArrowSvg}>
+                             <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                         </svg>
+                     </div>
                     <h2 style={styles.title}>{showChat ? 'Chat' : 'Game Lobby'}</h2>
                     <div style={styles.headerIcon} onClick={handleToggleChat} title="Toggle Chat">
                         <img src={ChatIcon} alt="Chat" style={styles.chatIcon} />
@@ -222,7 +222,7 @@ const Lobby = () => {
                 <Button 
                     onClick={handleCreateLobby} 
                     disabled={!username} 
-                >   
+                >   
                     {username ? 'Create Lobby' : 'Loading Username...'}
                 </Button>
             </div>
@@ -245,7 +245,7 @@ const Lobby = () => {
             <div style={styles.profileContainer}>
                 <span style={styles.usernameText}>{username}</span>
                 <Link to="/profile" style={styles.profileIconLink} title="View Profile">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style={styles.profileIconSvg}>
+                    <svg xmlns="http://www.w3c.org/2000/svg" viewBox="0 0 24 24" style={styles.profileIconSvg}>
                         <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                     </svg>
                 </Link>

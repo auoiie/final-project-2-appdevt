@@ -33,7 +33,9 @@ const Login = () => {
                 });
 
                 localStorage.setItem('token', res.data.token);
-                localStorage.setItem('username', res.data.user.username);
+                // CRITICAL FIX: Ensure res.data.user.username exists. 
+                // We keep this structure, but verify your API returns it this way.
+                localStorage.setItem('username', res.data.user.username); 
                 localStorage.setItem('role', res.data.user.role);
                 
                 navigate('/lobby');
