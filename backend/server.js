@@ -30,9 +30,12 @@ const MAX_LOBBY_AGE = 3600 * 1000;
 const LOBBY_CLEANUP_INTERVAL = 300 * 1000;
 
 const server = http.createServer(app);
+
+const corsOrigin = process.env.CORS_ORIGIN || "http://localhost:5173";
+
 const io = new Server(server, {
     cors: {
-        origin: "http://localhost:5173",
+        origin: corsOrigin,
         methods: ["GET", "POST"]
     }
 });
@@ -49,7 +52,7 @@ const connectDB = async () => {
 
 connectDB();
 
-app.use(cors());
+app.use(cors({ origin: corsOrigin }));
 app.use(express.json());
 
 app.use('/api/auth', authRoute);
