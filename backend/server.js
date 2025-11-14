@@ -11,7 +11,7 @@ const Level = require('./models/Level');
 const authRoute = require('./routes/auth');
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 const GAME_TICK_RATE = 1000 / 60;
 
 const PLAYER_SPEED = 7;
@@ -446,5 +446,5 @@ setInterval(() => {
 }, LOBBY_CLEANUP_INTERVAL);
 
 server.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });
