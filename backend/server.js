@@ -31,7 +31,6 @@ const LOBBY_CLEANUP_INTERVAL = 300 * 1000;
 
 const server = http.createServer(app);
 
-// --- THIS IS THE FIX ---
 const corsOrigin = process.env.CORS_ORIGIN || "http://localhost:5173";
 
 const io = new Server(server, {
@@ -53,8 +52,7 @@ const connectDB = async () => {
 
 connectDB();
 
-// --- THIS IS ALSO THE FIX ---
-app.use(cors({ origin: corsOrigin }));
+app.use(cors()); // <-- THIS IS THE FIX. It allows all HTTP requests.
 app.use(express.json());
 
 app.use('/api/auth', authRoute);
