@@ -12,7 +12,7 @@ const authRoute = require('./routes/auth');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-const GAME_TICK_RATE = 1000 / 60;
+const GAME_TICK_RATE = 1000 / 30;
 
 const PLAYER_SPEED = 7;
 const GRAVITY = 1.5;
