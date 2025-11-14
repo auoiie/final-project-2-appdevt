@@ -7,6 +7,12 @@ import Button from '../components/Button.jsx';
 import DisconnectedModal from '../components/DisconnectedModal.jsx';
 import ChatToggle from '../components/ChatToggle';
 
+// --- Utility LERP Function ---
+// 't' is the smoothing factor (0.15 is a good balance between responsiveness and smoothness)
+const LERP_FACTOR = 0.15;
+const lerp = (a, b, t) => a + (b - a) * t;
+// -----------------------------
+
 const DisqualifiedOverlay = ({ onSpectate, onQuit }) => (
     <div style={styles.overlay}>
         <div style={styles.modal}>
@@ -23,14 +29,24 @@ const GameArena = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { lobbyCode } = useParams();
-    const [gameState, setGameState] = useState(location.state?.initialGameState);
+    
+    // Server state is the target position
+    const [gameState, setGameState] = useState(location.state?.initialGameState); 
+    
+    // Client state is the rendered position (for smoothing)
+    const [renderedPositions, setRenderedPositions] = useState({});
+    
     const [gameOverInfo, setGameOverInfo] = useState(null);
     const [countdown, setCountdown] = useState(null);
     const [isDisqualified, setIsDisqualified] = useState(false);
     const [isSpectating, setIsSpectating] = useState(false);
     const [disconnectMessage, setDisconnectMessage] = useState('');
+    
     const keysPressed = useRef({});
+    const renderLoopRef = useRef();
+    const isInitialRender = useRef(true);
 
+    // --- EFFECT 1: Socket Listeners & Input Handlers ---
     useEffect(() => {
         if (!location.state?.initialGameState) {
             navigate('/lobby');
@@ -46,7 +62,8 @@ const GameArena = () => {
             if (me && me.disqualified && !isDisqualified && !isSpectating) {
                 setIsDisqualified(true);
             }
-            setGameState(newState);
+            // Update the TARGET state from the server
+            setGameState(newState); 
         };
         
         const onGameOver = (data) => setGameOverInfo(data);
@@ -90,7 +107,47 @@ const GameArena = () => {
             window.removeEventListener('keyup', handleKeyUp);
         };
     }, [lobbyCode, isDisqualified, isSpectating, navigate, location.state]);
-    
+
+    // --- EFFECT 2: Interpolation Loop (The Fix) ---
+    useEffect(() => {
+        const animate = () => {
+            setRenderedPositions(prevRendered => {
+                if (!gameState || !gameState.players) return prevRendered;
+
+                const newRendered = {};
+
+                gameState.players.forEach(serverPlayer => {
+                    const prevPosition = prevRendered[serverPlayer.id];
+
+                    if (!prevPosition || isInitialRender.current) {
+                        // On first render or if player is new/just joined, jump to server position
+                        newRendered[serverPlayer.id] = { ...serverPlayer.position, isIt: serverPlayer.isIt, color: serverPlayer.color, username: serverPlayer.username, disqualified: serverPlayer.disqualified };
+                    } else {
+                        // Smoothly interpolate towards the server's latest position (target)
+                        newRendered[serverPlayer.id] = {
+                            x: lerp(prevPosition.x, serverPlayer.position.x, LERP_FACTOR),
+                            y: lerp(prevPosition.y, serverPlayer.position.y, LERP_FACTOR),
+                            isIt: serverPlayer.isIt,
+                            color: serverPlayer.color,
+                            username: serverPlayer.username,
+                            disqualified: serverPlayer.disqualified
+                        };
+                    }
+                });
+
+                isInitialRender.current = false;
+                return newRendered;
+            });
+
+            renderLoopRef.current = requestAnimationFrame(animate);
+        };
+
+        renderLoopRef.current = requestAnimationFrame(animate);
+        
+        return () => cancelAnimationFrame(renderLoopRef.current);
+    }, [gameState]); // Re-run this effect when the TARGET state (gameState) changes
+
+    // --- Handlers remain the same ---
     const handleQuitToLobby = () => {
         socket.emit('leave_game');
         navigate('/lobby');
@@ -101,16 +158,24 @@ const GameArena = () => {
         setIsSpectating(true);
     };
     
-    const convertStateToPercentages = (state) => {
+    const convertCoordinatesToPercentages = (state) => {
         if (!state) return null;
         const canvasWidth = 1200;
         const canvasHeight = 600;
+        
+        // Use the interpolated positions from the separate state
+        const playersArray = Object.keys(renderedPositions).map(id => ({
+            id: id,
+            ...renderedPositions[id],
+            position: { 
+                x: (renderedPositions[id].x / canvasWidth) * 100, 
+                y: (renderedPositions[id].y / canvasHeight) * 100 
+            }
+        }));
+
         return {
             ...state,
-            players: state.players.map(p => ({
-                ...p,
-                position: { x: (p.position.x / canvasWidth) * 100, y: (p.position.y / canvasHeight) * 100 }
-            })),
+            players: playersArray,
             platforms: state.platforms.map(pf => ({
                 ...pf,
                 x: (pf.x / canvasWidth) * 100, y: (pf.y / canvasHeight) * 100,
@@ -119,10 +184,11 @@ const GameArena = () => {
         };
     };
 
-    const displayState = convertStateToPercentages(gameState);
+    const displayState = convertCoordinatesToPercentages(gameState);
 
     if (!displayState) return <div style={styles.loadingContainer}><h1 style={styles.loadingText}>Loading...</h1></div>;
 
+    // --- Render Component ---
     return (
         <div style={styles.arenaContainer}>
             {disconnectMessage && <DisconnectedModal message={disconnectMessage} />}
