@@ -235,7 +235,7 @@ const styles = {
     successText: { color: '#28a745', backgroundColor: 'rgba(0, 255, 0, 0.1)', padding: '10px', borderRadius: '5px', textAlign: 'center' },
     previewContainer: {
         width: '99%',
-        minHeight: '400px',
+        minHeight: '300px',
         position: 'relative',
         backgroundColor: '#000',
         border: '1px solid #555',
