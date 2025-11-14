@@ -219,7 +219,12 @@ const Lobby = () => {
         <div style={styles.formContainer}>
             <div style={styles.createContainer}>
                 <h2 style={styles.formTitle}>Create a New Game</h2>
-                <Button onClick={handleCreateLobby}>Create Lobby</Button>
+                <Button 
+                    onClick={handleCreateLobby} 
+                    disabled={!username} 
+                >   
+                    {username ? 'Create Lobby' : 'Loading Username...'}
+                </Button>
             </div>
             <div style={styles.orSeparator}>
                 <span style={styles.line}></span><span style={styles.orText}>OR</span><span style={styles.line}></span>
