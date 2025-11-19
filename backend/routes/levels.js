@@ -1,8 +1,9 @@
-const router = require('express').Router();
-const auth = require('../middleware/auth');
-const admin = require('../middleware/admin');
-const Level = require('../models/Level');
+const router = require('express').Router();// Import express router
+const auth = require('../middleware/auth');// Import authentication middleware
+const admin = require('../middleware/admin');// Import admin middleware
+const Level = require('../models/Level');// Import Level model
 
+// Create a new level (admin only)
 router.post('/', [auth, admin], async (req, res) => {
     try {
         const { name, platforms, spawnPoints } = req.body;
@@ -14,7 +15,7 @@ router.post('/', [auth, admin], async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
-
+// Get all levels
 router.get('/', auth, async (req, res) => {
     try {
         const levels = await Level.find().sort({ name: 1 });
@@ -24,7 +25,7 @@ router.get('/', auth, async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
-
+// Get a specific level by ID
 router.get('/:id', auth, async (req, res) => {
     try {
         const level = await Level.findById(req.params.id);
@@ -35,7 +36,7 @@ router.get('/:id', auth, async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
-
+// Update a level by ID (admin only)
 router.put('/:id', [auth, admin], async (req, res) => {
     try {
         const { name, platforms, spawnPoints } = req.body;
@@ -51,7 +52,7 @@ router.put('/:id', [auth, admin], async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
-
+// Delete a level by ID (admin only)
 router.delete('/:id', [auth, admin], async (req, res) => {
     try {
         const level = await Level.findByIdAndDelete(req.params.id);
@@ -63,4 +64,4 @@ router.delete('/:id', [auth, admin], async (req, res) => {
     }
 });
 
-module.exports = router;
+module.exports = router;// Export the router
