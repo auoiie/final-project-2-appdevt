@@ -17,14 +17,14 @@ const Profile = () => {
             try {
                 const token = localStorage.getItem('token');
                 if (!token) {
-                    navigate('/login');
+                    navigate('/login'); // Redirect if not logged in
                     return;
                 }
                 const res = await axios.get('https://final-project-2-appdevt.onrender.com/api/users/me', {
                     headers: { 'auth-token': token }
                 });
-                setUserData(res.data);
-                setNewUsername(res.data.username);
+                setUserData(res.data); // Save fetched user data
+                setNewUsername(res.data.username);// Initialize edit input
             } catch (err) {
                 setError('Could not fetch user data. Your session may have expired.');
                 localStorage.removeItem('token');
@@ -38,7 +38,7 @@ const Profile = () => {
 
     const handleSaveUsername = async () => {
         if (newUsername === userData.username) {
-            setIsEditing(false);
+            setIsEditing(false); // No changes, close edit mode
             setError('');
             return;
         }
@@ -56,7 +56,9 @@ const Profile = () => {
             setError(err.response?.data?.message || 'Failed to update username.');
         }
     };
+
     
+    // Logout function
     const handleLogout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('username');

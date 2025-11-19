@@ -11,23 +11,34 @@ import ChatIcon from '../assets/images/chat-icon.svg';
 
 const PLAYER_COLORS = ['#58a9ffff', '#5bff84ff', '#f9d25eff', '#9f6ff9ff'];
 
+
+// Main lobby page for creating/joining a game & managing players
 const Lobby = () => {
     const navigate = useNavigate();
     const location = useLocation();
+
+
+    // Basic states
     const [username, setUsername] = useState('');
     const [lobbyData, setLobbyData] = useState(location.state?.lobbyData || null);
     const [joinCode, setJoinCode] = useState('');
     const [error, setError] = useState('');
+// UI toggles
     const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
     const [levels, setLevels] = useState([]);
     const [showChat, setShowChat] = useState(false);
+
+// Chat states
     const [messages, setMessages] = useState([]);
     const [hasUnread, setHasUnread] = useState(false);
 
+
+    // Load saved username
     useEffect(() => {
         const storedUsername = localStorage.getItem('username');
         if (storedUsername) setUsername(storedUsername);
 
+           // Fetch available level maps
         const fetchLevels = async () => {
             try {
                 const token = localStorage.getItem('token');
@@ -41,6 +52,7 @@ const Lobby = () => {
         };
         fetchLevels();
 
+        // Auto-rejoin if player comes from a running game
         if (location.state?.rejoinCode && storedUsername) {
             if (!socket.connected) socket.connect();
             socket.emit('join_lobby', { lobbyCode: location.state.rejoinCode, username: storedUsername });
@@ -48,11 +60,14 @@ const Lobby = () => {
         }
     }, []);
 
+
+    // Ensure socket is connected
     useEffect(() => {
         if (!socket.connected) {
             socket.connect();
         }
 
+        // Lobby updates from server
         function onLobbyState(state) {
             setLobbyData(state);
             setError('');
@@ -67,7 +82,7 @@ const Lobby = () => {
         function onReceiveMessage(newMessage) {
             setMessages(prev => [...prev, newMessage]);
             if (!showChat) {
-                setHasUnread(true);
+                setHasUnread(true); // unread indicator
             }
         }
 
@@ -119,7 +134,8 @@ const Lobby = () => {
         if (lobbyData) socket.emit('select_color', { lobbyCode: lobbyData.lobbyCode, color });
         setIsColorPickerOpen(false);
     };
-
+    
+// Ready / Start game
     const handleReadyToggle = () => {
         if (lobbyData) socket.emit('toggle_ready', lobbyData.lobbyCode);
     };

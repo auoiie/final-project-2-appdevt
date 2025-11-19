@@ -1,14 +1,15 @@
-const router = require('express').Router();// Import express router
-const auth = require('../middleware/auth');// Import authentication middleware
-const GameSession = require('../models/GameSession');// Import GameSession model
-const User = require('../models/User'); // Import User model
+const router = require('express').Router();
+const auth = require('../middleware/auth');
+const GameSession = require('../models/GameSession');
+const User = require('../models/User');
 
-// Route to get the user's game history
 router.get('/my-history', auth, async (req, res) => {
       // Find the user by ID from the JWT token
     try {
+  
         const user = await User.findById(req.user._id);
         if (!user) {
+  
             return res.status(404).json({ message: 'User not found' });
         }
 // Find game sessions where the user played and a winner is defined

@@ -5,11 +5,19 @@ import Input from '../components/Input';
 import Button from '../components/Button';
 import GameLogo from '../assets/images/logo.png';
 
+//forgot passweord page
+//+new pass and submit request
+
 const ForgotPassword = () => {
     const navigate = useNavigate();
+
+    //error message
     const [error, setError] = useState('');
+
+    //form for email+new password
     const [formData, setFormData] = useState({ email: '', newPassword: '', confirmPassword: '' });
 
+// Updates form state when fields are typed in
     const handleInputChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
         setError('');
@@ -25,20 +33,24 @@ const ForgotPassword = () => {
         }
         
         try {
+            // Send request to backend API to reset password
             await axios.post('https://final-project-2-appdevt.onrender.com/api/auth/reset-password', {
                 email: formData.email,
                 newPassword: formData.newPassword,
             });
 
+// Notify user and redirect to login page
             alert('Password has been reset successfully! Please log in with your new password.');
             navigate('/login');
 
+// Show backend error or fallback message
         } catch (err) {
             setError(err.response?.data?.message || 'Something went wrong. Please try again.');
         }
     };
 
     return (
+        // Centered container for the reset form
         <div style={styles.container}>
             <div style={styles.formContainer}>
                 <img src={GameLogo} alt="You're IT! Logo" style={styles.logo} />
@@ -56,7 +68,7 @@ const ForgotPassword = () => {
         </div>
     );
 };
-
+// Inline styles for layout and design
 const styles = {
     container: { display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' },
     formContainer: {

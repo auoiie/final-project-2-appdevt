@@ -1,3 +1,6 @@
+// Level management Component
+// This admin page allows creating, editing, previewing, and deleting game levels
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
