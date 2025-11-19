@@ -25,6 +25,7 @@ const Login = () => {
         e.preventDefault();
         setError('');
 
+        // Send login request to backend
         if (isLogin) {
             try {
                 const res = await axios.post('https://final-project-2-appdevt.onrender.com/api/auth/login', {
@@ -32,23 +33,27 @@ const Login = () => {
                     password: formData.password,
                 });
 
+// Store auth data for session
                 localStorage.setItem('token', res.data.token);
                 // CRITICAL FIX: Ensure res.data.user.username exists. 
                 // We keep this structure, but verify your API returns it this way.
                 localStorage.setItem('username', res.data.user.username); 
                 localStorage.setItem('role', res.data.user.role);
                 
-                navigate('/lobby');
+                navigate('/lobby'); // Go to lobby after login
 
+                // Show backend error message
             } catch (err) {
                 setError(err.response?.data?.message || 'Something went wrong!');
             }
         } else {
+            // Basic email validation just for Gmail
             if (!formData.email.endsWith('@gmail.com')) {
                 setError("Please use a valid @gmail.com address.");
                 return;
             }
 
+            // Send registration request to backend
             try {
                 const res = await axios.post('https://final-project-2-appdevt.onrender.com/api/auth/register', {
                     username: formData.username,

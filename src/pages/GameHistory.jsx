@@ -3,13 +3,18 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
 
+// Game History Page
+// Fetches and displays all completed games of the logged-in user
 const GameHistory = () => {
     const navigate = useNavigate();
+
+// Local state for game data, loading state, and errors
     const [games, setGames] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const username = localStorage.getItem('username');
 
+       // Fetch game history on component load
     useEffect(() => {
         const fetchGameHistory = async () => {
             try {
@@ -27,10 +32,12 @@ const GameHistory = () => {
         fetchGameHistory();
     }, []);
 
+    // Formats date for better display
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleString();
     };
 
+    // Main container for centered layout
     return (
         <div style={styles.container}>
             <div style={styles.historyBox}>
@@ -67,6 +74,7 @@ const GameHistory = () => {
     );
 };
 
+// Inline styling for layout and presentation
 const styles = {
     container: { 
         display: 'flex', 

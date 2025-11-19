@@ -2,9 +2,10 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
 
+//admin dashboard, navi, manage level, users and returning to lobby
 const AdminDashboard = () => {
     const navigate = useNavigate();
-
+//center container
     return (
         <div style={styles.container}>
             <div style={styles.dashboardBox}>
@@ -25,6 +26,7 @@ const AdminDashboard = () => {
     );
 };
 
+//inline styling for layout and design
 const styles = {
     container: { display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', padding: '20px', boxSizing: 'border-box' },
     dashboardBox: { 

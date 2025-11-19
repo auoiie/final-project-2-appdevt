@@ -11,16 +11,20 @@ const UserManagement = () => {
 
     const fetchUsers = async () => {
         const token = localStorage.getItem('token');
+
+        // Fetch all users from backend
         try {
             const res = await axios.get('https://final-project-2-appdevt.onrender.com/api/users', { headers: { 'auth-token': token } });
             setUsers(res.data);
-        } catch (err) { setError('Could not fetch users.'); }
+        } catch (err) { setError('Could not fetch users.'); }// Show error if fetching fails
     };
 
     useEffect(() => {
         fetchUsers();
     }, []);
 
+
+    // Confirm before deleting user
     const handleDeleteUser = async (userId) => {
         if (!window.confirm('Are you sure you want to permanently delete this user? This action cannot be undone.')) return;
         setError('');
@@ -29,6 +33,7 @@ const UserManagement = () => {
         try {
             await axios.delete(`https://final-project-2-appdevt.onrender.com/api/users/${userId}`, { headers: { 'auth-token': token } });
             setSuccess('User deleted successfully!');
+            // Refresh user list
             fetchUsers();
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to delete user.');
