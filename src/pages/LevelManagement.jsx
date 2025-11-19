@@ -1,4 +1,4 @@
-// Level management Component
+// Level management Components
 // This admin page allows creating, editing, previewing, and deleting game levels
 
 import React, { useState, useEffect } from 'react';
